@@ -38,7 +38,6 @@ for i in range(try_times):
                            data={
                                'email': email,
                                'passwd': passwd,
-                               'remember_me': 'off',
                                'code': ''
                            })
         print('\n\t', res.json(), '\n')
