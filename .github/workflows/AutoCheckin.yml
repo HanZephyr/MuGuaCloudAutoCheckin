@@ -1,0 +1,43 @@
+#自动调用api保活，模仿人为开发版
+name: Auto Checkin
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - "v*"
+  #  branches:
+  #    - master
+  schedule:
+    - cron: "0 9,17,23 * * *"
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Set up Python #安装python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install requests #安装requests
+        run: |
+          pip install requests
+      - name: Read config from secrets #读取机密
+        env:
+          CONFIG_EMAIL: ${{ secrets.CONFIG_EMAIL }} # secrets_id 提供
+          CONFIG_PASSWD: ${{ secrets.CONFIG_PASSWD }} # secrets_key 提供
+        run: |
+          cp main.py 2.py
+          echo $CONFIG_EMAIL > configemail.txt
+          echo $CONFIG_PASSWD > configpasswd.txt
+          sed -i '15 r configemail.txt' 2.py
+          sed -i '17 r configpasswd.txt' 2.py
+      - name: Run Api #Api调用
+        run: |
+          python 2.py
